@@ -12,6 +12,7 @@ This module contains the terraform scripts to create the resources.
 ### pre-requisites
 You need to configure the aws cli on your machine.
 
+### Terraform Commands
 ### Run below commands from the iac-tf-base folder
 
 1. terraform init
@@ -33,3 +34,7 @@ Created the plan to create the infrastructure.
 5. terraform apply "base.tfplan"
 
 Creates the infrastructure
+
+6. terraform destroy
+
+Destroys the existing ifnrastructure
