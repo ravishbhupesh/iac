@@ -5,4 +5,5 @@ module "rds" {
   v_private_subnets = module.vpc.private_subnets
   common_tags       = local.common_tags
   name_prefix       = local.name_prefix
+  rds_input         = local.rds_input
 }
