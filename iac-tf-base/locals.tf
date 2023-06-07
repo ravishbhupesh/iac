@@ -1,16 +1,24 @@
-#Random ID for unique naming
-resource "random_integer" "rand" {
-  min = 10000
-  max = 99999
-}
-
 locals {
+
+  input = jsondecode(file("./input-template.json"))
+
+  project = lookup(local.input, "project")
+  company = lookup(local.input, "company")
+
+  aws_region  = lookup(local.input, "aws_region")
+  name_prefix = lookup(local.input, "naming_prefix")
+
   common_tags = {
-    company     = var.company
-    project     = "${var.company}-${var.project}"
+    company     = local.company
+    project     = "${local.company}-${local.project}"
     environment = terraform.workspace
   }
 
-  name_prefix    = "${var.naming_prefix}-${terraform.workspace}"
-  s3_bucket_name = lower("${local.name_prefix}-${random_integer.rand.result}")
+  rds_input = local.input["rds"]
+
+  #common_tags = {
+  #  company     = var.company
+  #  project     = "${var.company}-${var.project}"
+  #  environment = terraform.workspace
+  #}
 }

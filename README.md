@@ -1,10 +1,15 @@
 # IAC
 
 ## Modules
-
 - iac-tf-base
 
 This module contains the terraform scripts to create the resources.
+
+### Sub-Modules
+
+- rds
+
+This module contains the terraform scripts to create RDS resources
 
 ## How to run after checking out first time?
 
@@ -38,3 +43,14 @@ Creates the infrastructure
 6. terraform destroy
 
 Destroys the existing ifnrastructure
+
+### This project uses terraform workspaces
+
+VPC and other related resources will be created based on the workspace. Following maps of workspaces are available
+
+- default
+- dev
+- uat
+- prod
+
+### This RDS resources will be created based on the values provided in the "input-template.json" file
