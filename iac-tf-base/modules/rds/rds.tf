@@ -1,3 +1,8 @@
+resource "random_integer" "random_prefix" {
+  min = 1
+  max = 99999
+}
+
 resource "aws_security_group" "rds-sg" {
   name   = "${var.name_prefix}-rds-sg"
   vpc_id = var.v_vpc_id
@@ -27,14 +32,14 @@ resource "random_password" "rds_master_pswd" {
 }
 
 resource "aws_secretsmanager_secret" "rds_scrt" {
-  name        = "${var.name_prefix}-rds-scrt"
+  name        = "${var.name_prefix}-${random_integer.random_prefix.result}-rds-scrt"
   description = "${var.name_prefix} Secret for storing RDS master password"
 
   tags = var.common_tags
 }
 
 resource "aws_secretsmanager_secret_version" "rds_scrt_val" {
-  secret_id = aws_secretsmanager_secret.rds_scrt.id
+  secret_id     = aws_secretsmanager_secret.rds_scrt.id
   secret_string = random_password.rds_master_pswd.result
 }
 
@@ -54,7 +59,7 @@ module "db" {
   port     = var.rds_input["rds_db_port"]
 
   create_random_password = var.rds_input["rds_create_random_password"]
-  password = aws_secretsmanager_secret_version.rds_scrt_val.secret_id
+  password               = aws_secretsmanager_secret_version.rds_scrt_val.secret_id
 
   #iam_database_authentication_enabled = true
 
