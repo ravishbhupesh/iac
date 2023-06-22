@@ -3,6 +3,7 @@
     "company": "CMA-CGM",
     "aws_region": "eu-central-1",
     "naming_prefix": "idoc",
+    "environment": "dev",
     "rds" : {
         "rds_db_identifier": "idocidt",
         "rds_allocated_storage": 5,
