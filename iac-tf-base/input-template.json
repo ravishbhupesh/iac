@@ -1,14 +1,14 @@
 {
     "project": "idoc",
     "company": "CMA-CGM",
-    "aws_region": "eu-central-1",
+    "aws_region": "eu-west-1",
     "naming_prefix": "idoc",
     "environment": "dev",
     "rds" : {
         "rds_db_identifier": "idocidt",
         "rds_allocated_storage": 5,
         "rds_db_engine": "postgres",
-        "rds_db_engine_version": "14.1",
+        "rds_db_engine_version": "14.7",
         "rds_db_instance_class": "db.t3.micro",
         "rds_db_name": "defaultdb",
         "rds_db_username": "defaultuser",
