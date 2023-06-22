@@ -41,3 +41,9 @@ variable "project" {
   type        = string
   description = "Project name for resource tagging"
 }
+
+variable "envVal" {
+  type        = string
+  description = "environment to built"
+  default     = "dev"
+}
