@@ -42,7 +42,7 @@ variable "project" {
   description = "Project name for resource tagging"
 }
 
-variable "env" {
+variable "envVal" {
   type        = string
   description = "environment to built"
   default     = "dev"

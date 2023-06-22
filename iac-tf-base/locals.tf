@@ -7,12 +7,12 @@ locals {
 
   aws_region  = lookup(local.input, "aws_region")
   name_prefix = lookup(local.input, "naming_prefix")
-  env = lookup(local.input, "environment")
+  envVal      = lookup(local.input, "environment")
 
   common_tags = {
     company     = local.company
     project     = "${local.company}-${local.project}"
-    environment = local.env
+    environment = local.envVal
   }
 
   rds_input = local.input["rds"]
