@@ -1,0 +1,7 @@
+com\infy\templates\aws\app\jedis\JedisCredentials.class
+com\infy\templates\aws\app\AppHandler.class
+com\infy\templates\aws\app\jedis\JedisClient.class
+com\infy\templates\aws\app\dto\Request.class
+com\infy\templates\aws\app\dto\Response.class
+com\infy\templates\aws\app\services\AppService.class
+com\infy\templates\aws\app\services\impl\AppServiceImpl.class

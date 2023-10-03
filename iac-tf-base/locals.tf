@@ -15,7 +15,8 @@ locals {
     environment = local.envVal
   }
 
-  rds_input = local.input["rds"]
+  network_input     = local.input["network"]
+  elasticache_input = local.input["elasticache"]
 
   #common_tags = {
   #  company     = var.company
