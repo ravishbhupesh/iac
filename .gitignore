@@ -27,11 +27,14 @@ override.tf.json
 # !example_override.tf
 
 # Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
-# example: *tfplan*
+*tfplan*
 
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
+
+**/.terraform.lock.hcl
+.terraform.lock.hcl
 
 **/target/
 /target/
@@ -39,6 +42,8 @@ terraform.rc
 .classpath
 .project
 .settings
+**/*.class
+*.class
 
 # Package Files #
 *.jar
@@ -47,3 +52,10 @@ terraform.rc
 
 *.iml
 *.idea
+
+**/.aws-sam
+
+.aws-sam
+
+**/.vscode
+.vscode

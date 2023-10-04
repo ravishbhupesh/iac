@@ -5,28 +5,25 @@
     "naming_prefix": "iac",
     "environment": "dev",
     "network" : {
-        "vpc-id": "vpc-0590fca622818ff9c",
-        "pub-subnet-ids": [
+        "vpc_id": "vpc-0590fca622818ff9c",
+        "pub_subnet_ids": [
             "subnet-07c2c0cf69cc0a5bb",
             "subnet-059f940af458b2be0",
             "subnet-0c2323bece4656269"
         ],
-        "pvt-subnet-ids": [
+        "pvt_subnet_ids": [
             "subnet-0941019692db41abf",
             "subnet-0373bc0b5e2e670d4",
             "subnet-029c32f0ffa141e56"
         ]
     },
     "elasticache" : {
-        "replication_group_id": "iac-clstr-id",
-        "replication_group_description": "Redis cluster",
+        "replication_group_id": "iac-cluster-id",
+        "engine": "redis",
         "node_type": "cache.t2.medium",
-        "redis_clstr_port": 6379,
-        "parameter_group_name": "default.redis3.2.cluster.on",
-        "snapshot_retention_limit": 5,
-        "snapshot_window": "00:00-05:00",
-        "automatic_failover_enabled": true,
-        "replicas_per_node_group": 1,
-        "num_node_groups": 1
+        "num_cache_nodes": 1,
+        "parameter_group_name": "default.redis7",
+        "engine_version": "7.0",
+        "redis_cluster_port": 6379
     }
 }

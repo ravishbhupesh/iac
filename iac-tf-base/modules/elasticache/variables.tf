@@ -1,6 +1,18 @@
-variable "v_vpc_id" {
+variable "vpc_id" {
   type        = string
   description = "VPC Id"
+}
+
+variable "pub_subnet_ids" {
+  type        = list(string)
+  description = "List of public subnets available in given vpc"
+  default     = []
+}
+
+variable "pvt_subnet_ids" {
+  type        = list(string)
+  description = "List of private subnets available in given vpc"
+  default     = []
 }
 
 variable "name_prefix" {

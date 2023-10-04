@@ -38,14 +38,14 @@ public final class JedisClient {
 
 	static {
 		OBJECT_MAPPER.setSerializationInclusion(Include.NON_NULL);
-		JedisCredentials jedisCredentials = fetchCredentialsFromSecretManager();
-		initialize(jedisCredentials);
+		//JedisCredentials jedisCredentials = fetchCredentialsFromSecretManager();
+		//initialize(jedisCredentials);
+		initialize(null);
 	}
 
 	private static void initialize(JedisCredentials jedisCredentials) {
 		HostAndPort hostAndPort = new HostAndPort(System.getenv("REDIS_CLUSTER_URL"), 6379);
-		jedisCluster = new JedisCluster(Set.of(hostAndPort), jedisCredentials.getUsername(),
-				jedisCredentials.getPassword());
+		jedisCluster = new JedisCluster(Set.of(hostAndPort));
 
 	}
 
