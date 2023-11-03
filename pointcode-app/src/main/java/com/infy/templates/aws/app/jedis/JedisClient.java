@@ -1,81 +1,75 @@
 package com.infy.templates.aws.app.jedis;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.util.Collections;
-import java.util.Set;
-
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import redis.clients.jedis.DefaultJedisClientConfig;
-import redis.clients.jedis.HostAndPort;
-import redis.clients.jedis.JedisClientConfig;
-import redis.clients.jedis.JedisCluster;
-import redis.clients.jedis.JedisPoolConfig;
+import com.infy.templates.aws.app.dto.Response;
+import lombok.extern.log4j.Log4j2;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 import software.amazon.awssdk.http.urlconnection.UrlConnectionHttpClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
-import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
-import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueResponse;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
+@Log4j2
 public final class JedisClient {
+
+	private JedisClient() {
+	}
+
+	private static final JedisClient INSTANCE = new JedisClient();
+
+	public static JedisClient getInstance() {
+		return INSTANCE;
+	}
 
 	private static final String AWS_REGION = System.getenv("AWS_REGION");
 	private static final String ACCESS_SECRET = System.getenv("ACCESS_SECRET");
 	private static final SecretsManagerClient SECRETS_MANAGER_CLIENT = SecretsManagerClient.builder()
 			.region(Region.of(AWS_REGION)).httpClient(UrlConnectionHttpClient.builder().build()).build();
 
-	private static JedisCluster jedisCluster = null;
+	private static Jedis jedis = null;
 
 	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
 	static {
 		OBJECT_MAPPER.setSerializationInclusion(Include.NON_NULL);
-		//JedisCredentials jedisCredentials = fetchCredentialsFromSecretManager();
-		//initialize(jedisCredentials);
-		initialize(null);
-	}
-
-	private static void initialize(JedisCredentials jedisCredentials) {
-		HostAndPort hostAndPort = new HostAndPort(System.getenv("REDIS_CLUSTER_URL"), 6379);
-		jedisCluster = new JedisCluster(Set.of(hostAndPort));
-
-	}
-
-	private static JedisCredentials fetchCredentialsFromSecretManager() {
-		JSONObject input = null;
-		try {
-			input = (JSONObject) new JSONParser().parse(getSecretValue());
-			return new JedisCredentials((String) input.get("username"), (String) input.get("password"));
-		} catch (ParseException e) {
-			return null;
+		log.info("Connecting to Redis. Endpoint : {}", System.getenv("REDIS_HOST"));
+		try (JedisPool jedisPool = new JedisPool(System.getenv("REDIS_HOST"), Integer.parseInt(System.getenv("REDIS_PORT")))) {
+			jedis = jedisPool.getResource();
+			log.info("Connection Successful!!!");
+		} finally {
+			if(null == jedis) {
+				log.error("Unable to connect to redis!!!");
+			}
 		}
 	}
-
-	private static String getSecretValue() {
-		GetSecretValueRequest request = GetSecretValueRequest.builder().secretId(ACCESS_SECRET).build();
-		GetSecretValueResponse response = SECRETS_MANAGER_CLIENT.getSecretValue(request);
-		return response.secretString();
-	}
-
 	public <T> T fetch(String key, Class<T> typeClass) {
 		if (null != key) {
-			String jsonStr = jedisCluster.get(key);
-			
+			String jsonStr = jedis.get(key);
+			log.info("Value for key : {}, in cache : {}", key, jsonStr);
 			try {
-				return OBJECT_MAPPER.readValue(jsonStr.getBytes(StandardCharsets.UTF_8), typeClass);
+				return (null != jsonStr) ? OBJECT_MAPPER.readValue(jsonStr.getBytes(StandardCharsets.UTF_8), typeClass) : null;
 			} catch (IOException e) {
+				log.error("IO Error : {}", e.getMessage());
 				return null;
 			}
 		}
 		return null;
+	}
+
+	public void add(String key, Response value) {
+
+		String result = null;
+		try {
+			result = jedis.set(key, OBJECT_MAPPER.writeValueAsString(value));
+		} catch (JsonProcessingException e) {
+			log.error("JsonProcessingException : {}", e.getMessage());
+		}
+		log.info("key : {}, value : {}, added in cache. Result : {}", key, value, result);
 	}
 
 }

@@ -1,5 +1,5 @@
-resource "aws_security_group" "allow_elasticache_traffic" {
-  name        = "${var.name_prefix}-allow-elasticache-traffic"
+resource "aws_security_group" "redis_sg" {
+  name        = "${var.name_prefix}-redis-sg"
   description = "Allow Elasticache traffic"
   vpc_id      = var.vpc_id
 
@@ -33,6 +33,6 @@ resource "aws_elasticache_cluster" "redisCluster" {
   parameter_group_name = var.elasticache_input["parameter_group_name"]
   engine_version       = var.elasticache_input["engine_version"]
   port                 = var.elasticache_input["redis_cluster_port"]
-  security_group_ids   = [aws_security_group.allow_elasticache_traffic.id]
+  security_group_ids   = [aws_security_group.redis_sg.id]
   subnet_group_name    = aws_elasticache_subnet_group.redis-cluster-subnet-grp.name
 }

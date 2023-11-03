@@ -41,14 +41,21 @@ public class AppHandler implements RequestStreamHandler {
 		try {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(in, Charset.forName("US-ASCII")));
 			jsonObject = (JSONObject) jsonParser.parse(reader);
+
+			logger.log("JSON Request received : " + jsonObject.get("body").toString(), LogLevel.INFO);
+
 			Request request = OBJECT_MAPPER.readValue(jsonObject.get("body").toString(), Request.class);
+
+			logger.log("Request received : " + request.toString(), LogLevel.INFO);
 			
 			Response response = service.processRequest(request, logger);
+
+			logger.log("Response prepared : " + response.toString(), LogLevel.INFO);
 			
 			out.write(prepareResponse(OBJECT_MAPPER.writeValueAsString(response)));
 			
 		} catch (ParseException e) {
-			e.printStackTrace();
+			logger.log("AppHandler::ParseException" + e.getMessage(), LogLevel.ERROR);
 		} finally {
 			logger.log("AppHandler::handleRequest END", LogLevel.INFO);
 		}
