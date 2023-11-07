@@ -6,6 +6,7 @@ locals {
   company = lookup(local.input, "company")
 
   aws_region  = lookup(local.input, "aws_region")
+  accountId   = lookup(local.input, "accountId")
   name_prefix = lookup(local.input, "naming_prefix")
   envVal      = lookup(local.input, "environment")
 
@@ -17,6 +18,7 @@ locals {
 
   network_input     = local.input["network"]
   elasticache_input = local.input["elasticache"]
+  apigateway_input  = local.input["apigateway"]
 
   #common_tags = {
   #  company     = var.company

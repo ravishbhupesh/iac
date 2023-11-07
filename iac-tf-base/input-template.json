@@ -1,20 +1,21 @@
 {
     "project": "iac",
     "company": "CMA-CGM",
+    "accountId": "YOUR_ACCOUNT_ID",
     "aws_region": "eu-west-1",
     "naming_prefix": "iac",
     "environment": "dev",
     "network" : {
-        "vpc_id": "vpc-0590fca622818ff9c",
+        "vpc_id": "VPC_ID",
         "pub_subnet_ids": [
-            "subnet-07c2c0cf69cc0a5bb",
-            "subnet-059f940af458b2be0",
-            "subnet-0c2323bece4656269"
+            "subnet-A",
+            "subnet-B",
+            "subnet-C"
         ],
         "pvt_subnet_ids": [
-            "subnet-0941019692db41abf",
-            "subnet-0373bc0b5e2e670d4",
-            "subnet-029c32f0ffa141e56"
+            "subnet-D",
+            "subnet-E",
+            "subnet-F"
         ]
     },
     "elasticache" : {
@@ -25,5 +26,14 @@
         "parameter_group_name": "default.redis7",
         "engine_version": "7.0",
         "redis_cluster_port": 6379
+    },
+    "apigateway" : {
+        "name" : "pointcode-api",
+        "description": "Point Code API",
+        "path_part" : "pointcode",
+        "http_method" : "POST",
+        "stage_name" : "prod",
+        "integration_http_method" : "POST",
+        "type" : "AWS_PROXY"
     }
 }

@@ -1,96 +1,157 @@
-provider "aws" {
-  region = "us-west-2" # Change this to your desired AWS region
+resource "aws_api_gateway_rest_api" "restApi" {
+  name        = var.apigateway_input["name"]
+  description = var.apigateway_input["description"]
+
+  endpoint_configuration {
+    types = ["REGIONAL"]
+  }
 }
 
-resource "aws_api_gateway_rest_api" "example_api" {
-  name        = "example-api"
-  description = "Example API Gateway"
+resource "aws_api_gateway_resource" "restApiResource" {
+  rest_api_id = aws_api_gateway_rest_api.restApi.id
+  parent_id   = aws_api_gateway_rest_api.restApi.root_resource_id
+  path_part   = var.apigateway_input["path_part"]
+  //path_part   = "{proxy+}"
 }
 
-resource "aws_api_gateway_deployment" "example_deployment" {
-  rest_api_id = aws_api_gateway_rest_api.example_api.id
-  stage_name  = "prod"
-}
+resource "aws_api_gateway_model" "restApiReqModel" {
+  rest_api_id  = aws_api_gateway_rest_api.restApi.id
+  name         = "reqModel1"
+  content_type = "application/json"
 
-resource "aws_lambda_function" "example_lambda" {
-  function_name    = "example-lambda-function"
-  runtime          = "java11"
-  handler          = "com.example.LambdaHandler::handleRequest"
-  role             = aws_iam_role.lambda_exec.arn
-  filename         = "your-bucket-name/your-key-prefix/your-java-lambda.jar"
-  source_code_hash = filebase64sha256("your-bucket-name/your-key-prefix/your-java-lambda.jar")
-}
-
-resource "aws_iam_role" "lambda_exec" {
-  name = "lambda-exec-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Action = "sts:AssumeRole",
-        Effect = "Allow",
-        Principal = {
-          Service = "lambda.amazonaws.com"
-        }
+  schema = jsonencode({
+    type = "object",
+    "properties" : {
+      "code_type" : {
+        "type" : "string"
+      },
+      "code_value" : {
+        "type" : "string"
+      },
+      "shipcomp_code" : {
+        "type" : "string"
       }
-    ]
+    },
+    "required" : ["code_type", "code_value", "shipcomp_code"],
+    "additionalProperties" : false
   })
 }
 
-resource "aws_iam_policy" "lambda_policy" {
-  name = "lambda-policy"
+resource "aws_api_gateway_model" "restApiRespModel" {
+  rest_api_id  = aws_api_gateway_rest_api.restApi.id
+  name         = "respModel1"
+  content_type = "application/json"
 
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Action = [
-          "logs:CreateLogGroup",
-          "logs:CreateLogStream",
-          "logs:PutLogEvents"
-        ],
-        Effect   = "Allow",
-        Resource = "arn:aws:logs:*:*:*"
+  schema = jsonencode({
+    type = "object",
+    "properties" : {
+      "code_amount" : {
+        "type" : "string"
+      },
+      "code_interval" : {
+        "type" : "string"
+      },
+      "code_length" : {
+        "type" : "string"
+      },
+      "code_rate" : {
+        "type" : "string"
+      },
+      "code_type" : {
+        "type" : "string"
+      },
+      "code_value" : {
+        "type" : "string"
+      },
+      "code_xref" : {
+        "type" : "string"
+      },
+      "description" : {
+        "type" : "string"
+      },
+      "time_stamp" : {
+        "type" : "string"
+      },
+      "code_flag" : {
+        "type" : "string"
+      },
+      "date_stamp" : {
+        "type" : "string"
+      },
+      "delete_flag" : {
+        "type" : "string"
+      },
+      "user_id" : {
+        "type" : "string"
+      },
+      "shipcomp_code" : {
+        "type" : "string"
       }
-    ]
+    },
+    "additionalProperties" : false
   })
 }
 
-resource "aws_iam_role_policy_attachment" "lambda_attach" {
-  policy_arn = aws_iam_policy.lambda_policy.arn
-  role       = aws_iam_role.lambda_exec.name
-}
-
-resource "aws_api_gateway_integration" "example_integration" {
-  rest_api_id             = aws_api_gateway_rest_api.example_api.id
-  resource_id             = aws_api_gateway_rest_api.example_api.root_resource_id
-  http_method             = "ANY"
-  integration_http_method = "POST"
-  type                    = "AWS_PROXY"
-  uri                     = aws_lambda_function.example_lambda.invoke_arn
-}
-
-resource "aws_api_gateway_method" "example_method" {
-  rest_api_id   = aws_api_gateway_rest_api.example_api.id
-  resource_id   = aws_api_gateway_rest_api.example_api.root_resource_id
-  http_method   = "ANY"
+resource "aws_api_gateway_method" "restApiMethod" {
+  rest_api_id   = aws_api_gateway_rest_api.restApi.id
+  resource_id   = aws_api_gateway_resource.restApiResource.id
+  http_method   = var.apigateway_input["http_method"]
   authorization = "NONE"
+
+  request_models = {
+    "application/json" = aws_api_gateway_model.restApiReqModel.name
+  }
 }
 
-resource "aws_api_gateway_method_response" "example_response" {
-  rest_api_id = aws_api_gateway_rest_api.example_api.id
-  resource_id = aws_api_gateway_rest_api.example_api.root_resource_id
-  http_method = aws_api_gateway_method.example_method.http_method
+resource "aws_api_gateway_method_response" "restApiMethodResp_200" {
+  rest_api_id = aws_api_gateway_rest_api.restApi.id
+  resource_id = aws_api_gateway_resource.restApiResource.id
+  http_method = var.apigateway_input["http_method"]
   status_code = "200"
+
+  response_models = {
+    "application/json": aws_api_gateway_model.restApiRespModel.name
+  }
 }
 
-resource "aws_api_gateway_deployment" "example_deployment" {
-  depends_on  = [aws_api_gateway_integration.example_integration]
-  rest_api_id = aws_api_gateway_rest_api.example_api.id
-  stage_name  = "prod"
+resource "aws_api_gateway_integration" "restApiIntegration" {
+  rest_api_id = aws_api_gateway_rest_api.restApi.id
+  resource_id = aws_api_gateway_resource.restApiResource.id
+  http_method = aws_api_gateway_method.restApiMethod.http_method
+
+  integration_http_method = var.apigateway_input["integration_http_method"]
+  type                    = var.apigateway_input["type"]
+  //uri                     = var.lambda_arn
+  uri = var.lambda_invoke_arn
+
+  request_templates = {
+    "application/xml" = <<EOF
+    {
+      "body": $input.json('$')
+    }
+    EOF
+  }
 }
 
-output "api_gateway_invoke_url" {
-  value = aws_api_gateway_deployment.example_deployment.invoke_url
+resource "aws_api_gateway_integration_response" "restApiIntegrationResp" {
+  rest_api_id = aws_api_gateway_rest_api.restApi.id
+  resource_id = aws_api_gateway_resource.restApiResource.id
+  http_method = aws_api_gateway_method.restApiMethod.http_method
+
+  status_code = aws_api_gateway_method_response.restApiMethodResp_200.status_code
+}
+
+resource "aws_lambda_permission" "lambdaPermission" {
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  function_name = var.lambda_function_name
+  principal     = "apigateway.amazonaws.com"
+
+  source_arn = "arn:aws:execute-api:${var.region}:${var.accountId}:${aws_api_gateway_rest_api.restApi.id}/*/${aws_api_gateway_method.restApiMethod.http_method}${aws_api_gateway_resource.restApiResource.path}"
+}
+
+resource "aws_api_gateway_deployment" "pointcode" {
+  depends_on  = [aws_api_gateway_integration.restApiIntegration]
+  rest_api_id = aws_api_gateway_rest_api.restApi.id
+  stage_name  = var.apigateway_input["stage_name"]
 }
