@@ -7,9 +7,17 @@ This module contains the terraform scripts to create the resources.
 
 ### Sub-Modules
 
-- rds
+- elasticache
 
-This module contains the terraform scripts to create RDS resources
+This module contains the terraform scripts to create Elacticache resource.
+
+- lambda
+
+This module contains the terraform scripts to create a lambda function.
+
+- api gateway
+
+This module contains the terraform scripts to create Rest API with Api Gateway.
 
 ## How to run after checking out first time?
 
@@ -53,4 +61,4 @@ VPC and other related resources will be created based on the workspace. Followin
 - uat
 - prod
 
-### This RDS resources will be created based on the values provided in the "input-template.json" file
+### The resources will be created based on the values provided in the "input-template.json" file
